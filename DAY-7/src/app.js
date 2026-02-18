@@ -4,6 +4,8 @@ const noteModel = require("./models/notes.model")
 const app = express();
 app.use(express.json())
 
+
+// POST METHOD
 app.post("/notes", async (req, res)=>{
     const {title, description} = req.body
 
@@ -15,6 +17,17 @@ app.post("/notes", async (req, res)=>{
     res.status(201).json({
         message: "note created successfully",
         note
+    })
+})
+
+// GET METHOD
+
+app.get("/notes", async (req, res)=>{
+    const notes = await noteModel.find()
+
+    res.status(200).json({
+        message: "notes fetched successfully",
+        notes
     })
 })
 
