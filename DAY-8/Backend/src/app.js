@@ -1,9 +1,13 @@
 const express =  require("express")
 const noteModel = require("./models/notes.model")
+const cors = require("cors")
+const path = require("path")
 
 const app = express()
 
+app.use(cors())
 app.use(express.json())
+app.use(express.static("./public"))
 
 // POST METHOD
 
@@ -55,6 +59,10 @@ app.patch("/notes/:id", async (req, res)=>{
     res.status(200).json({
         message: "desc updated successfully"
     })
+})
+
+app.use("*name", (req, res)=>{
+    res.sendFile(path.join(__dirname, ".." , "/public/index.html"))
 })
 
 module.exports = app

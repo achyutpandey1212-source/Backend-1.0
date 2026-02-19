@@ -1,0 +1,274 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+html {
+  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #151515 100%);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #e0e0e0;
+}
+
+.form {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+  border-radius: 1rem;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(255, 255, 255, 0.05) inset;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.form input {
+  flex: 1;
+  min-width: 250px;
+  padding: 1rem 1.25rem;
+  border: none;
+  border-radius: 0.75rem;
+  background: linear-gradient(145deg, #3a3a3a, #2d2d2d);
+  color: #f0f0f0;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.form input::placeholder {
+  color: #a0a0a0;
+}
+
+.form input:focus {
+  outline: none;
+  background: linear-gradient(145deg, #4a4a4a, #3d3d3d);
+  box-shadow: 
+    0 0 0 3px rgba(99, 102, 241, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.5);
+  transform: translateY(-1px);
+}
+
+.form button {
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+  white-space: nowrap;
+}
+
+.form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.6);
+}
+
+.notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.note {
+  min-height: 240px;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(255, 255, 255, 0.05) inset;
+  color: #f0f0f0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.note::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #6366f1, #ec4899, #f59e0b);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.note:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.6),
+    0 4px 16px rgba(255, 255, 255, 0.1) inset;
+}
+
+.note:hover::before {
+  transform: scaleX(1);
+}
+
+.note h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.note p {
+  flex-grow: 1;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #b3b3b3;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Edit Mode Input */
+.note input:not(.form input) {
+  flex-grow: 1;
+  padding: 0.875rem;
+  border: 2px solid #4a4a4a;
+  border-radius: 0.75rem;
+  background: linear-gradient(145deg, #3a3a3a, #2d2d2d);
+  color: #f0f0f0;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.note input:not(.form input)::placeholder {
+  color: #808080;
+}
+
+.note input:not(.form input):focus {
+  outline: none;
+  border-color: #6366f1;
+  background: linear-gradient(145deg, #4a4a4a, #3d3d3d);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Button Container */
+.note-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+/* All Note Buttons */
+.note button {
+  padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 80px;
+  white-space: nowrap;
+}
+
+/* EDIT Button (Blue) */
+.note button:nth-of-type(3) {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.note button:nth-of-type(3):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.6);
+}
+
+/* DELETE Button (Red) */
+.note button:nth-of-type(4) {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.note button:nth-of-type(4):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.6);
+}
+
+/* SAVE Button (Green - first in edit mode) */
+.note button:nth-of-type(1) {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.note button:nth-of-type(1):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.6);
+}
+
+/* CANCEL Button (Gray) */
+.note button:nth-of-type(2) {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  color: white;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.4);
+}
+
+.note button:nth-of-type(2):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(107, 114, 128, 0.6);
+}
+
+.note button:active {
+  transform: translateY(0);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .form {
+    flex-direction: column;
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+
+  .notes {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1rem;
+  }
+
+  .note {
+    min-height: 260px;
+    gap: 0.5rem;
+  }
+
+  .note-actions {
+    flex-direction: column;
+  }
+
+  .note button {
+    flex: none;
+  }
+}
