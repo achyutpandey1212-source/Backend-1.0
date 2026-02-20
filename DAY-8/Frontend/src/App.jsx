@@ -10,7 +10,7 @@ function App() {
   const [editDesc, setEditDesc] = useState("");
 
   function fetchNotes() {
-    axios.get("/notes").then((res) => {
+    axios.get("https://notesapp-kkt4.onrender.com/notes").then((res) => {
       setNotes(res.data.note);
     });
   }
@@ -23,7 +23,7 @@ function App() {
     e.preventDefault();
 
     axios
-      .post("/notes", {
+      .post("https://notesapp-kkt4.onrender.com/notes", {
         title: title,
         description: description,
       })
@@ -36,7 +36,7 @@ function App() {
   }
 
   function deletePost(_id) {
-    axios.delete(`/notes/${_id}`).then((res) => {
+    axios.delete(`https://notesapp-kkt4.onrender.com/notes/${_id}`).then((res) => {
       fetchNotes();
       console.log(res.data);
     });
@@ -48,7 +48,7 @@ function App() {
 
   function saveNote(id) {
     axios
-      .patch(`/notes/${id}`, { description: editDesc })
+      .patch(`https://notesapp-kkt4.onrender.com/notes/${id}`, { description: editDesc })
       .then(() => {
         fetchNotes();
         setEditingId(null);
