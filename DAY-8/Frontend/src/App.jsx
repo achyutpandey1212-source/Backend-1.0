@@ -10,7 +10,7 @@ function App() {
   const [editDesc, setEditDesc] = useState("");
 
   function fetchNotes() {
-    axios.get("http://localhost:3000/notes").then((res) => {
+    axios.get("/notes").then((res) => {
       setNotes(res.data.note);
     });
   }
@@ -23,7 +23,7 @@ function App() {
     e.preventDefault();
 
     axios
-      .post("http://localhost:3000/notes", {
+      .post("/notes", {
         title: title,
         description: description,
       })
@@ -36,7 +36,7 @@ function App() {
   }
 
   function deletePost(_id) {
-    axios.delete(`http://localhost:3000/notes/${_id}`).then((res) => {
+    axios.delete(`/notes/${_id}`).then((res) => {
       fetchNotes();
       console.log(res.data);
     });
@@ -48,7 +48,7 @@ function App() {
 
   function saveNote(id) {
     axios
-      .patch(`http://localhost:3000/notes/${id}`, { description: editDesc })
+      .patch(`/notes/${id}`, { description: editDesc })
       .then(() => {
         fetchNotes();
         setEditingId(null);
