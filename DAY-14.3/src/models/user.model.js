@@ -3,12 +3,12 @@ const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
-    unique: [true, "username already exists"],
+    unqiue: [true, "username not available"],
     required: true,
   },
   email: {
     type: String,
-    unique: [true, "email already exists"],
+    unique: [true, "user already exists"],
     required: true,
   },
   password: {
@@ -19,17 +19,7 @@ const userSchema = new mongoose.Schema({
   profileImage: {
     type: String,
     default:
-      "https://ik.imagekit.io/1gileoynr/default-profile-picture-avatar-user-icon-vector-46389216.avif",
-  },
-  followers: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: "user",
-    default: [],
-  },
-  following: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: "user",
-    default: [],
+      "https://ik.imagekit.io/1gileoynr/default-profile-picture-avatar-user-icon-vector-46389216.avif?updatedAt=1771771461998",
   },
 });
 

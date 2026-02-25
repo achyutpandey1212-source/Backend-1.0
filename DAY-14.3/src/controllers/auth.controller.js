@@ -1,31 +1,24 @@
+const userModel = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const userModel = require("../models/user.model");
 
 async function registerController(req, res) {
   const { username, email, password, bio, profileImage } = req.body;
 
-  const isUserAlreadyExists = await userModel.findOne({
-    $or: [
-      {
-        username,
-      },
-      {
-        email,
-      },
-    ],
+  const isUser = await userModel.findOne({
+    $or: [{ username }, { email }],
   });
 
-  if (isUserAlreadyExists) {
+  if (isUser) {
     return res.status(401).json({
       message:
-        isUserAlreadyExists.email == email
-          ? "email already registered"
-          : "username is not available",
+        isUser.email === email
+          ? "Email already registered..."
+          : "Username not available",
     });
   }
 
-  const hash = await bcrypt.hash(password, 10)
+  const hash = await bcrypt.hash(password, 10);
 
   const user = await userModel.create({
     username,
@@ -46,11 +39,8 @@ async function registerController(req, res) {
   res.cookie("token", token);
 
   res.status(201).json({
-    message: "user registered successfully...",
-    user: {
-      username,
-      email,
-    },
+    message: "User registered successfully...",
+    user,
   });
 }
 
@@ -63,15 +53,15 @@ async function loginController(req, res) {
 
   if (!user) {
     return res.status(404).json({
-      message: "user not found",
+      message: "user not found...",
     });
   }
 
-  const isPassword = await bcrypt.compare(password, user.password)
+  const hash = await bcrypt.compare(password, user.password);
 
-  if (!isPassword) {
+  if (!hash) {
     return res.status(401).json({
-      message: "Invalid password!",
+      message: "Invalid Password",
     });
   }
 
@@ -83,10 +73,13 @@ async function loginController(req, res) {
     { expiresIn: "1d" },
   );
 
-  res.cookie("token", token);
+  res.cookie("token", token, {
+    httpOnly: true,
+    sameSite: "lax",
+  });
 
   res.status(201).json({
-    message: "User logged in...",
+    message: "user logged in...",
   });
 }
 
