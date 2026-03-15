@@ -36,3 +36,13 @@ export async function getMe() {
   const response = await api.get("/get-me");
   return response.data;
 }
+
+export async function logout() {
+  const response = await api.post("/logout");
+  return response.data;
+}
+
+export async function searchUsers(query) {
+  const response = await api.get(`/search?query=${encodeURIComponent(query)}`);
+  return response.data;
+}

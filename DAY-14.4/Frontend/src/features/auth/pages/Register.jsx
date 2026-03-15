@@ -13,11 +13,17 @@ const Register = () => {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    handleRegister(username, email, password).then((res) =>
-      console.log("register success", res),
-    );
+    const registeredUser = await handleRegister(username, email, password);
 
-    navigate("/");
+    if (!registeredUser) {
+      return;
+    }
+
+    if (!registeredUser.hasProfile) {
+      navigate("/complete-profile");
+    } else {
+      navigate("/feed");
+    }
   }
 
   return (

@@ -13,10 +13,14 @@ const Login = () => {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    handleLogin(username, password).then((res) =>
-      console.log("login success", res),
-    );
-    navigate("/");
+    const user = await handleLogin(username, password);
+    if (user) {
+      if (user.hasProfile) {
+        navigate("/feed");
+      } else {
+        navigate("/complete-profile");
+      }
+    }
   }
 
   return (

@@ -297,6 +297,27 @@ async function getPendingRequestsController(req, res) {
   }
 }
 
+//check follow status between current user and target user
+async function checkFollowStatusController(req, res) {
+  const currentUserId = req.user.id;
+  const targetUserId = req.params.targetUserId;
+
+  const followRelation = await followModel.findOne({
+    follower: currentUserId,
+    following: targetUserId,
+  });
+
+  if (!followRelation) {
+    return res.status(200).json({
+      status: "not_following",
+    });
+  }
+
+  return res.status(200).json({
+    status: followRelation.status, // "pending" or "accepted"
+  });
+}
+
 module.exports = {
   sendFollowRequestController,
   acceptFollowRequestController,
@@ -305,4 +326,5 @@ module.exports = {
   getFollowerListController,
   getFollowingListController,
   getPendingRequestsController,
+  checkFollowStatusController,
 };

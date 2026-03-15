@@ -1,5 +1,8 @@
 const postModel = require("../models/post.model");
 const userProfileModel = require("../models/userProfile.model");
+const commentModel = require("../models/comment.model");
+const likeModel = require("../models/like.model");
+const bookmarkModel = require("../models/bookmark.model");
 const ImageKit = require("@imagekit/nodejs");
 const authMiddleware = require("../middlewares/auth.middleware");
 const jwt = require("jsonwebtoken");
@@ -117,9 +120,75 @@ async function getUsersPostsController(req, res) {
   });
 }
 
+// update post controller
+async function updatePostController(req, res) {
+  const postId = req.params.id;
+  const userId = req.user.id;
+
+  const post = await postModel.findById(postId);
+  if (!post) {
+    return res.status(404).json({
+      message: "Post not found",
+    });
+  }
+
+  if (String(post.user) !== String(userId)) {
+    return res.status(403).json({
+      message: "Not allowed to update this post",
+    });
+  }
+
+  const updates = {};
+  if (typeof req.body.title === "string") {
+    updates.title = req.body.title.trim();
+  }
+  if (typeof req.body.caption === "string") {
+    updates.caption = req.body.caption.trim();
+  }
+
+  const updated = await postModel.findByIdAndUpdate(postId, updates, {
+    new: true,
+  });
+
+  return res.status(200).json({
+    message: "post updated",
+    post: updated,
+  });
+}
+
+// delete post controller
+async function deletePostController(req, res) {
+  const postId = req.params.id;
+  const userId = req.user.id;
+
+  const post = await postModel.findById(postId);
+  if (!post) {
+    return res.status(404).json({
+      message: "Post not found",
+    });
+  }
+
+  if (String(post.user) !== String(userId)) {
+    return res.status(403).json({
+      message: "Not allowed to delete this post",
+    });
+  }
+
+  await postModel.deleteOne({ _id: postId });
+  await commentModel.deleteMany({ post: postId });
+  await likeModel.deleteMany({ post: postId });
+  await bookmarkModel.deleteMany({ post: postId });
+
+  return res.status(200).json({
+    message: "post deleted",
+  });
+}
+
 module.exports = {
   creeatePostController,
   getFeedController,
   getSinglePostController,
   getUsersPostsController,
+  updatePostController,
+  deletePostController,
 };

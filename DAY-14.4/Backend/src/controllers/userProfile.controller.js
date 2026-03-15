@@ -31,4 +31,21 @@ async function userProfileController(req, res) {
   });
 }
 
-module.exports = userProfileController;
+async function getUserProfileController(req, res) {
+  const userId = req.params.userId;
+
+  const userProfile = await userProfileModel.findOne({ user: userId }).populate('user', 'username');
+
+  if (!userProfile) {
+    return res.status(404).json({
+      message: "User profile not found",
+    });
+  }
+
+  return res.status(200).json({
+    message: "User profile fetched",
+    userProfile,
+  });
+}
+
+module.exports = { userProfileController, getUserProfileController };

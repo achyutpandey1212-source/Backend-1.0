@@ -27,6 +27,20 @@ postRouter.get(
   postController.getSinglePostController,
 );
 
+// update post
+postRouter.patch(
+  "/:id",
+  authMiddleware.identifyUser,
+  postController.updatePostController,
+);
+
+// delete post
+postRouter.delete(
+  "/:id",
+  authMiddleware.identifyUser,
+  postController.deletePostController,
+);
+
 // get user's all posts
 postRouter.get(
   "/me/:id",

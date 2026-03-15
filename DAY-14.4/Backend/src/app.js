@@ -5,6 +5,8 @@ const postRouter = require("./routes/post.routes");
 const userProfileRouter = require("./routes/userProfile.routes");
 const followRouter = require("./routes/follow.routes");
 const likeRouter = require("./routes/like.routes")
+const commentRouter = require("./routes/comment.routes");
+const bookmarkRouter = require("./routes/bookmark.routes");
 const cookieParser = require("cookie-parser");
 const cors = require("cors")
 
@@ -24,5 +26,7 @@ app.use("/api/posts", postRouter);
 app.use("/api/userprofile", userProfileRouter);
 app.use("/api", followRouter);
 app.use("/api", likeRouter)
+app.use("/api/posts", commentRouter);
+app.use("/api/bookmarks", bookmarkRouter);
 
 module.exports = app;

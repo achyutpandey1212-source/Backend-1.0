@@ -52,4 +52,11 @@ followRouter.get(
   followController.getPendingRequestsController,
 );
 
+//check follow status
+followRouter.get(
+  "/status/:targetUserId",
+  authMiddleware.identifyUser,
+  followController.checkFollowStatusController,
+);
+
 module.exports = followRouter;
