@@ -1,0 +1,167 @@
+main {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .left-block {
+    width: 58%;
+    height: 100vh;
+    background: linear-gradient(rgba(0, 0, 0, 0.961), rgba(0, 0, 0, 0.856));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    h1 {
+      font-size: 1.3rem;
+      width: 70%;
+      color: white;
+      font-weight: 400;
+      text-align: center;
+      font-family:
+        "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+        "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+      text-wrap: wrap;
+      line-height: 2rem;
+
+      span {
+        background: linear-gradient(90deg, #fa7a17, #d62976, #962fbf, #4f5bd5);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 400;
+        font-size: 1.3rem;
+        letter-spacing: -0.02em;
+      }
+    }
+
+    .top {
+      height: 10%;
+      width: 10%;
+      object-fit: contain;
+      position: relative;
+      left: -40%;
+      top: -30px;
+    }
+
+    .bottom {
+      height: 45%;
+      width: 45%;
+      object-fit: cover;
+    }
+  }
+
+  .form-container {
+    height: 100vh;
+    width: 42%;
+    background-color: #152127;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-left: 1px solid rgba(219, 217, 217, 0.864);
+    gap: 0; 
+    padding: 40px 40px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+
+    h1 {
+      font-size: 1.3rem; 
+      font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-weight: 400;
+      margin-bottom: 32px;
+      color: white;
+    }
+
+    form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+
+      .input-group {
+        position: relative;
+
+        input {
+          width: 100%;
+          height: 60px;
+          padding: 10PX 10PX;
+          border: 1px solid #96a6b4;
+          border-radius: 0.5rem;
+          background-color: #152127;
+          font-size: 15px;
+          color: #96a6b4;
+          outline: none;
+          margin-top: 2px;
+
+          &::placeholder {
+            color: transparent;
+          }
+
+          &:focus {
+            background-color: #152127;
+            box-shadow: 0 0 0 1px #0095f6;
+          }
+        }
+
+        label {
+          position: absolute;
+          left: 10px;
+          top: 12px;
+          font-size: 12px;
+          color: #96a6b4;
+          pointer-events: none;
+          transition: all 0.18s ease;
+          font-weight: 400;
+          line-height: 15px;
+        }
+
+        input:focus + label,
+        input:not(:placeholder-shown) + label {
+          top: 0;
+          font-size: 10px;
+          font-weight: 100;
+          color: #96a6b4;
+        }
+      }
+
+      button {
+        height: 45px;
+        border: none;
+        border-radius: 1rem;
+        background: #0095f6;
+        color: white;
+        font-weight: 200;
+        font-size: 10px;
+        cursor: pointer;
+        margin: 8px 0;
+
+        &:hover:not(:disabled) {
+          background: #1877f2;
+        }
+      }
+
+      .link {
+        margin-top: 24px;
+        text-align: center;
+        display: flex;
+        justify-content: space-between;
+        gap: 1.5rem;
+
+        p {
+          font-size: 13px;
+          color: #8e8e8e;
+          margin: 0;
+        }
+
+        a {
+          color: #0095f6;
+          font-weight: 600;
+          font-size: 13px;
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}

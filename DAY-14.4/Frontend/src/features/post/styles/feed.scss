@@ -1,0 +1,250 @@
+/* /post/styles/feed.scss - Complete styling for Feed page and components */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #fafafa;
+  color: #262626;
+  line-height: 1.5;
+}
+
+/* Feed Container */
+.feed-container {
+  max-width: 614px;
+  margin: 0 auto;
+  padding: 30px 0;
+  background: #fafafa;
+}
+
+/* Loading State */
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #fafafa;
+
+  h1 {
+    color: #8e8e8e;
+    font-size: 24px;
+    font-weight: 300;
+  }
+}
+
+/* Post Card */
+.post-card {
+  background: #ffffff;
+  border-radius: 12px;
+  margin-bottom: 28px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.05);
+  max-width: 614px;
+
+  &:hover {
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.1);
+  }
+}
+
+/* Post Header */
+.post-header {
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .profile-pic {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .username {
+      font-weight: 600;
+      font-size: 14px;
+      color: #262626;
+      line-height: 18px;
+    }
+  }
+
+  .more-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #262626;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    line-height: 1;
+
+    &:hover,
+    &:active {
+      background: rgba(0,0,0,0.05);
+    }
+  }
+}
+
+/* Post Image */
+.post-image {
+  position: relative;
+  width: 100%;
+  height: 614px; // 1:1 aspect ratio
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+/* Post Actions */
+.post-actions {
+  padding: 8px 16px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .action-buttons {
+    display: flex;
+    gap: 16px;
+  }
+
+  .action-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+
+    &:hover,
+    &:active {
+      background: rgba(0,0,0,0.03);
+    }
+
+    &.bookmark {
+      font-size: 20px;
+    }
+  }
+}
+
+/* Likes Count */
+.likes-count {
+  padding: 0 16px 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #262626;
+  line-height: 18px;
+}
+
+/* Post Caption */
+.post-caption {
+  padding: 0 16px 12px;
+
+  .username {
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  span {
+    font-size: 14px;
+    line-height: 18px;
+  }
+}
+
+/* Comments Section */
+.view-comments {
+  padding: 0 16px 8px;
+  font-size: 14px;
+  color: #8e8e8e;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #262626;
+  }
+}
+
+/* Post Time */
+.post-time {
+  padding: 0 16px 16px;
+  font-size: 10px;
+  color: #8e8e8e;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 400;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .feed-container {
+    padding: 20px 10px;
+  }
+
+  .post-card {
+    border-radius: 0;
+    margin-bottom: 20px;
+    box-shadow: none;
+    border-bottom: 1px solid #efefef;
+  }
+
+  .post-image {
+    height: 50vw; // Responsive square
+  }
+
+  .post-header,
+  .post-actions,
+  .likes-count,
+  .post-caption {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.post-card {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #000000;
+    color: #ffffff;
+  }
+
+  .feed-container {
+    background: #000000;
+  }
+
+  .post-card {
+    background: #262626;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+  }
+}
