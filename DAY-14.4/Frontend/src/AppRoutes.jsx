@@ -6,8 +6,8 @@ import Feed from "./features/post/pages/Feed"
 import CreatePost from "./features/post/pages/CreatePost";
 import Profile from "./features/auth/pages/Profile";
 import CompleteProfile from "./features/auth/pages/CompleteProfile";
-import Header from "./components/Header";
 import { useAuth } from "./features/auth/hooks/useAuth";
+import Layout from "./components/Layout";
 
 function RequireProfile({ children }) {
   const { user, loading } = useAuth();
@@ -31,8 +31,7 @@ function RequireProfile({ children }) {
 
   return (
     <>
-      <Header />
-      {children}
+      <Layout>{children}</Layout>
     </>
   );
 }

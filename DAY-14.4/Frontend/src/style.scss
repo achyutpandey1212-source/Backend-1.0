@@ -7,10 +7,11 @@
 html,
 body,
 #root {
-  height: 100%;
+  height: auto;
+  min-height: 100%;
   width: 100%;
-  background-color: #fafafa;
-  color: #262626;
+  background-color: #0b0f14;
+  color: #e6e6e6;
   font-family:
     system-ui,
     -apple-system,
@@ -36,6 +37,59 @@ body,
 @import "./components/SearchBar.scss";
 
 @import "./components/Notifications.scss";
+
+@import "./components/Sidebar.scss";
+
+.app-shell {
+  min-height: 100vh;
+  background: #0b0f14;
+  color: #e6e6e6;
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr) 320px;
+  gap: 28px;
+  padding: 28px 36px;
+  width: 100%;
+}
+
+body {
+  overflow-y: auto;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.app-rightbar {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  min-height: 200px;
+}
+
+@media (max-width: 1200px) {
+  .app-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .app-rightbar {
+    display: none;
+  }
+
+  .app-leftbar {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+}
 
 // Loading styles
 .loading-container {

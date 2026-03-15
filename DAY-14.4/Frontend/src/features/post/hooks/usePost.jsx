@@ -1,27 +1,57 @@
 import { getFeed } from "../services/post.api";
 import { getMyBookmarks } from "../services/bookmark.api";
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
 import { PostContext } from "../post.context";
 
 export const usePost = () => {
   const context = useContext(PostContext);
 
-  const { loading, setLoading, post, setPost, feed, setFeed, bookmarks, setBookmarks } = context;
+  const {
+    loading,
+    setLoading,
+    post,
+    setPost,
+    feed,
+    setFeed,
+    bookmarks,
+    setBookmarks,
+  } = context;
 
-  const handleGetFeed = async (page = 1, limit = 3, append = false) => {
-    setLoading(true);
-    try {
-      const [feedData, bookmarkData] = await Promise.all([
-        getFeed(page, limit),
-        getMyBookmarks(),
-      ]);
-      setFeed((prev) => (append ? [...(prev || []), ...(feedData.posts || [])] : feedData.posts));
-      setBookmarks(bookmarkData.posts || []);
-      return feedData.posts || [];
-    } finally {
-      setLoading(false);
-    }
-  };
+  const handleGetFeed = useCallback(
+    async ({ page = 1, limit = 0, append = false, fetchBookmarks = true } = {}) => {
+      if (!append) {
+        setFeed([]);
+      }
+      setLoading(true);
 
-  return { loading, feed, post, bookmarks, handleGetFeed}
+      try {
+        const [feedData, bookmarkData] = await Promise.all([
+          getFeed({ page, limit }),
+          fetchBookmarks ? getMyBookmarks() : Promise.resolve({ posts: [] }),
+        ]);
+
+        const posts = feedData.posts || [];
+
+        setFeed((current) => (append ? [...(current || []), ...posts] : posts));
+        if (fetchBookmarks) {
+          setBookmarks(bookmarkData.posts || []);
+        }
+
+        return posts;
+      } catch (error) {
+        // If there are no posts yet, backend may return 404.
+        if (error?.response?.status === 404) {
+          setFeed((current) => (append ? current : []));
+          return [];
+        }
+
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [setBookmarks, setFeed, setLoading]
+  );
+
+  return { loading, feed, post, bookmarks, handleGetFeed };
 };

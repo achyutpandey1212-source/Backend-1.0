@@ -5,9 +5,14 @@ const api = axios.create({
     withCredentials: true
 })
 
-export async function getFeed(page = 1, limit = 3){
-    const response = await api.get(`/feed?page=${page}&limit=${limit}`)
-    return response.data
+export async function getFeed({ page = 1, limit = 0 } = {}) {
+    const response = await api.get('/feed', {
+        params: {
+            page,
+            limit,
+        },
+    });
+    return response.data;
 }
 
 export async function updatePost(postId, payload) {

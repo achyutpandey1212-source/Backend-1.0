@@ -230,7 +230,7 @@ const Post = ({ postData, isBookmarked: isBookmarkedProp }) => {
 
       {/* Image */}
       <div className="post-image">
-        <img src={currentPost.imgUrl} alt={currentPost.caption} loading="lazy" />
+        <img src={currentPost.imgUrl} alt={currentPost.caption} />
       </div>
 
       {/* Title */}

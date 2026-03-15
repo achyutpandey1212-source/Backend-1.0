@@ -48,19 +48,23 @@ async function creeatePostController(req, res) {
 
 //see all posts - feed controller
 async function getFeedController(req, res) {
-  const page = req.query.page || 1;
-  const limit = req.query.limit || 3;
-  const skip = (page - 1) * limit;
+  const page = Number(req.query.page || 1);
+  const limit = req.query.limit ? Number(req.query.limit) : 0;
+  const skip = limit > 0 ? (page - 1) * limit : 0;
 
-  const posts = await postModel
+  let query = postModel
     .find({})
     .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit)
     .populate([
       { path: "user", select: "username" },
       { path: "userProfile", select: "profileImg" },
     ]);
+
+  if (limit > 0) {
+    query = query.skip(skip).limit(limit);
+  }
+
+  const posts = await query;
 
   if (posts.length === 0) {
     return res.status(404).json({

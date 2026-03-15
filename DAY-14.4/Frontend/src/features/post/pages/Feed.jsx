@@ -1,50 +1,79 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "../styles/feed.scss";
 import Post from "../components/Post";
 import { usePost } from "../hooks/usePost";
-import { useAuth } from "../../auth/hooks/useAuth";
+
+const PAGE_LIMIT = 6;
 
 const Feed = () => {
   const { feed, handleGetFeed, loading, bookmarks } = usePost();
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const userId = user?._id || user?.id;
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState(null);
   const loaderRef = useRef(null);
+  const isFetchingRef = useRef(false);
+
+  const isEmpty = useMemo(() => !loading && (!feed || feed.length === 0), [feed, loading]);
+
+  const loadPage = useCallback(
+    async (nextPage) => {
+      if (isFetchingRef.current) return;
+
+      isFetchingRef.current = true;
+      setError(null);
+      setLoadingMore(true);
+
+      try {
+        const posts = await handleGetFeed({
+          page: nextPage,
+          limit: PAGE_LIMIT,
+          append: nextPage > 1,
+          fetchBookmarks: nextPage === 1,
+        });
+
+        setHasMore(posts.length === PAGE_LIMIT);
+        setPage(nextPage);
+      } catch (err) {
+        console.error("Feed load failed", err);
+        setError(err.message || "Failed to load feed");
+      } finally {
+        setLoadingMore(false);
+        isFetchingRef.current = false;
+      }
+    },
+    [handleGetFeed]
+  );
 
   useEffect(() => {
-    const loadInitial = async () => {
-      const posts = await handleGetFeed(1, 3, false);
-      setHasMore(posts.length > 0);
-    };
-    loadInitial();
-  }, []);
+    loadPage(1);
+  }, [loadPage]);
 
   useEffect(() => {
     if (!loaderRef.current) return;
 
     const observer = new IntersectionObserver(
-      async (entries) => {
+      (entries) => {
         const first = entries[0];
-        if (first.isIntersecting && !loading && hasMore) {
-          const nextPage = page + 1;
-          const posts = await handleGetFeed(nextPage, 3, true);
-          setPage(nextPage);
-          if (!posts || posts.length === 0) {
-            setHasMore(false);
-          }
+        if (
+          first.isIntersecting &&
+          hasMore &&
+          !loading &&
+          !loadingMore &&
+          !isFetchingRef.current
+        ) {
+          loadPage(page + 1);
         }
       },
-      { rootMargin: "200px" },
+      { rootMargin: "200px" }
     );
 
     observer.observe(loaderRef.current);
-    return () => observer.disconnect();
-  }, [page, loading, hasMore]);
 
-  if (loading && (!feed || feed.length === 0)) {
+    return () => observer.disconnect();
+  }, [hasMore, loading, loadingMore, loadPage, page]);
+
+  if (loading && isEmpty) {
     return (
       <main className="main-loading">
         <h1>Loading feed...</h1>
@@ -53,27 +82,33 @@ const Feed = () => {
   }
 
   return (
-    <div className="feed-shell">
-      <aside className="feed-leftbar"></aside>
-      <main className="feed-container">
-        {feed && feed.length === 0 && !loading && (
-          <div className="empty-state">No posts yet.</div>
-        )}
-        {(feed || []).map((postData) => {
-          const postId = postData._id || postData.id;
-          const isBookmarked = bookmarks?.some((b) => (b._id || b.id) === postId);
-          return (
-            <Post
-              key={postId}
-              postData={postData}
-              isBookmarked={isBookmarked}
-            />
-          );
-        })}
-        <div ref={loaderRef} className="feed-loader" />
-      </main>
+    <div className="feed-container">
+      {error && <div className="error-state">{error}</div>}
+      {isEmpty && !error && <div className="empty-state">No posts yet.</div>}
+      {(feed || []).map((postData) => {
+        const postId = postData._id || postData.id;
+        const isBookmarked = bookmarks?.some((b) => (b._id || b.id) === postId);
+        return (
+          <Post
+            key={postId}
+            postData={postData}
+            isBookmarked={isBookmarked}
+          />
+        );
+      })}
 
-      <aside className="feed-rightbar"></aside>
+      <div className="feed-loader" ref={loaderRef}>
+        {(loadingMore || (loading && page === 1)) && (
+          <div className="loader">
+            <div className="dot" />
+            <div className="dot" />
+            <div className="dot" />
+          </div>
+        )}
+        {!hasMore && feed && feed.length > 0 && (
+          <div className="end-message">No more posts to load</div>
+        )}
+      </div>
     </div>
   );
 };
