@@ -9,6 +9,7 @@ const commentRouter = require("./routes/comment.routes");
 const bookmarkRouter = require("./routes/bookmark.routes");
 const cookieParser = require("cookie-parser");
 const cors = require("cors")
+const path = require("path")
 
 const app = express();
 
@@ -18,7 +19,7 @@ app.use(cors({
 }))
 app.use(express.json());
 app.use(cookieParser());
-
+app.use(express.static(path.join(__dirname, "../public")))
 
 // @routes
 app.use("/api/auth", authRouter);
@@ -28,5 +29,10 @@ app.use("/api", followRouter);
 app.use("/api", likeRouter)
 app.use("/api/posts", commentRouter);
 app.use("/api/bookmarks", bookmarkRouter);
+
+// @wild-card middleware
+app.use((req, res) => {
+    res.sendFile(path.join(__dirname, "../public/index.html"));
+});
 
 module.exports = app;
