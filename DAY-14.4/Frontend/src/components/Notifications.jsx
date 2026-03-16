@@ -12,17 +12,21 @@ const Notifications = () => {
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef(null);
 
-  useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const response = await getPendingRequests();
-        setRequests(response.requests || []);
-      } catch (error) {
-        console.error("Error fetching requests:", error);
-        setRequests([]);
-      }
-    };
+  const fetchRequests = async () => {
+    try {
+      const response = await getPendingRequests();
+      setRequests(response.requests || []);
+    } catch (error) {
+      console.error("Error fetching requests:", error);
+      setRequests([]);
+    }
+  };
 
+  useEffect(() => {
+    fetchRequests();
+  }, []);
+
+  useEffect(() => {
     if (isOpen) {
       fetchRequests();
     }

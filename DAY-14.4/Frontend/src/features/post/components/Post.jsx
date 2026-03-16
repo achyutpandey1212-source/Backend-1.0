@@ -1,5 +1,5 @@
 // /post/components/Post.jsx
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { PostContext } from '../post.context';
 import { likePost, unlikePost } from '../services/like.api';
 import { getComments, createComment, replyToComment, deleteComment } from '../services/comment.api';
@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/hooks/useAuth';
 
 const Post = ({ postData, isBookmarked: isBookmarkedProp }) => {
-  const { post } = useContext(PostContext);
+  const { post, setFeed } = useContext(PostContext);
   const currentPost = postData || post;
   const postId = currentPost?._id || currentPost?.id;
   const initialLikeCount = currentPost?.likeCount ?? currentPost?.likesCount ?? 0;
@@ -37,6 +37,12 @@ const Post = ({ postData, isBookmarked: isBookmarkedProp }) => {
   const [displayTitle, setDisplayTitle] = useState(currentPost?.title || "");
   const [displayCaption, setDisplayCaption] = useState(currentPost?.caption || "");
   const [isDeleted, setIsDeleted] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [likePulse, setLikePulse] = useState(false);
+  const [bookmarkPulse, setBookmarkPulse] = useState(false);
+  const [editToast, setEditToast] = useState("");
+  const imageRef = useRef(null);
 
   if (!currentPost) return null;
   if (isDeleted) return null;
@@ -44,6 +50,16 @@ const Post = ({ postData, isBookmarked: isBookmarkedProp }) => {
   useEffect(() => {
     setIsBookmarked(!!isBookmarkedProp);
   }, [isBookmarkedProp]);
+
+  useEffect(() => {
+    setImageLoaded(false);
+  }, [currentPost?.imgUrl]);
+
+  useEffect(() => {
+    if (imageRef.current?.complete) {
+      setImageLoaded(true);
+    }
+  }, [currentPost?.imgUrl]);
 
   const handleProfileClick = () => {
     const userId = currentPost.user?._id || currentPost.user?.id;
@@ -61,6 +77,8 @@ const Post = ({ postData, isBookmarked: isBookmarkedProp }) => {
       if (!isLiked) {
         const data = await likePost(postId);
         setIsLiked(true);
+        setLikePulse(true);
+        setTimeout(() => setLikePulse(false), 350);
         if (typeof data.likeCount === "number") {
           setLikeCount(data.likeCount);
         } else {
@@ -69,6 +87,8 @@ const Post = ({ postData, isBookmarked: isBookmarkedProp }) => {
       } else {
         const data = await unlikePost(postId);
         setIsLiked(false);
+        setLikePulse(true);
+        setTimeout(() => setLikePulse(false), 350);
         if (typeof data.likeCount === "number") {
           setLikeCount(data.likeCount);
         } else {
@@ -90,9 +110,13 @@ const Post = ({ postData, isBookmarked: isBookmarkedProp }) => {
       if (isBookmarked) {
         await removeBookmark(postId);
         setIsBookmarked(false);
+        setBookmarkPulse(true);
+        setTimeout(() => setBookmarkPulse(false), 350);
       } else {
         await addBookmark(postId);
         setIsBookmarked(true);
+        setBookmarkPulse(true);
+        setTimeout(() => setBookmarkPulse(false), 350);
       }
     } catch (err) {
       // silently fail for now; could show toast
@@ -176,18 +200,27 @@ const Post = ({ postData, isBookmarked: isBookmarkedProp }) => {
       setDisplayTitle(data.post?.title || editTitle);
       setDisplayCaption(data.post?.caption || editCaption);
       setIsEditing(false);
+      setEditToast("Saved");
+      setTimeout(() => setEditToast(""), 1600);
     } catch (err) {
       // optionally show error
     }
   };
 
   const handleDeletePost = async () => {
-    if (!postId) return;
+    if (!postId || deleteLoading) return;
     try {
+      setDeleteLoading(true);
       await deletePost(postId);
+      if (setFeed) {
+        setFeed((prev) => (prev || []).filter((item) => (item?._id || item?.id) !== postId));
+      }
       setIsDeleted(true);
     } catch (err) {
       // optionally show error
+    } finally {
+      setDeleteLoading(false);
+      setShowMenu(false);
     }
   };
 
@@ -200,6 +233,10 @@ const Post = ({ postData, isBookmarked: isBookmarkedProp }) => {
     return `${dd}/${mm}/${yyyy}`;
   };
 
+  const headlineText = displayTitle || displayCaption || "";
+  const showCaptionRow = Boolean(displayTitle) && Boolean(displayCaption);
+  const postTime = currentPost.createdAt ? formatDate(currentPost.createdAt) : "";
+
   return (
     <article className="post-card">
       <div className="post-header">
@@ -211,42 +248,70 @@ const Post = ({ postData, isBookmarked: isBookmarkedProp }) => {
             onClick={handleProfileClick}
             style={{ cursor: 'pointer' }}
           />
-          <span className="username" onClick={handleProfileClick} style={{ cursor: 'pointer' }}>{currentPost.user.username}</span>
+          <div className="user-text">
+            <span className="username" onClick={handleProfileClick} style={{ cursor: 'pointer' }}>
+              {currentPost.user.username}
+            </span>
+            {postTime && <span className="user-sub">{postTime}</span>}
+          </div>
         </div>
-        <div className="post-menu">
-          <button className="more-btn" onClick={() => setShowMenu((v) => !v)} aria-label="More options">
-            <span className="dot"></span>
-            <span className="dot"></span>
-            <span className="dot"></span>
-          </button>
-          {showMenu && isOwner && (
-            <div className="post-menu-dropdown">
-              <button className="menu-item" onClick={() => setIsEditing(true)}>Edit</button>
-              <button className="menu-item danger" onClick={handleDeletePost}>Delete</button>
-            </div>
-          )}
-        </div>
+        {isOwner && (
+          <div className="post-menu">
+            <button className="more-btn" onClick={() => setShowMenu((v) => !v)} aria-label="More options">
+              <span className="dot"></span>
+              <span className="dot"></span>
+              <span className="dot"></span>
+            </button>
+            {showMenu && (
+              <div className="post-menu-dropdown">
+                <button
+                  className="menu-item"
+                  onClick={() => {
+                    setIsEditing(true);
+                    setShowMenu(false);
+                  }}
+                >
+                  Edit
+                </button>
+                <button
+                  className="menu-item danger"
+                  onClick={() => {
+                    handleDeletePost();
+                    setShowMenu(false);
+                  }}
+                >
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Image */}
-      <div className="post-image">
-        <img src={currentPost.imgUrl} alt={currentPost.caption} loading="lazy" />
+      <div className={`post-image ${imageLoaded ? "loaded" : ""}`}>
+        <img
+          src={currentPost.imgUrl}
+          alt={currentPost.caption}
+          loading="lazy"
+          className={imageLoaded ? "loaded" : ""}
+          ref={imageRef}
+          onLoad={() => setImageLoaded(true)}
+          onError={() => setImageLoaded(true)}
+        />
       </div>
 
-      {/* Title */}
-      {displayTitle && (
-        <div className="post-title">
-          {displayTitle}
-        </div>
+      {headlineText && (
+        <div className="post-headline">{headlineText}</div>
       )}
 
       {/* Actions */}
       <div className="post-actions">
         <div className="action-buttons">
           <button
-            className={`action-btn ${isLiked ? "active" : ""}`}
+            className={`action-btn ${isLiked ? "active" : ""} ${likePulse ? "pulse" : ""}`}
             onClick={handleToggleLike}
-            disabled={likeLoading}
+            aria-busy={likeLoading}
             aria-label="Like"
           >
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -258,13 +323,21 @@ const Post = ({ postData, isBookmarked: isBookmarkedProp }) => {
               <path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-6a8 8 0 1 1 18-5z" />
             </svg>
           </button>
-          <button className="action-btn" aria-label="Share">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M3 12l18-9-6.5 18-3-6.5z" />
-            </svg>
-          </button>
+          <div className="action-stack">
+            <button className="action-btn share" aria-label="Share (coming soon)" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 12l18-9-6.5 18-3-6.5z" />
+              </svg>
+            </button>
+            <span className="coming-soon">Coming soon</span>
+          </div>
         </div>
-        <button className={`action-btn bookmark ${isBookmarked ? "active" : ""}`} onClick={handleToggleBookmark} disabled={bookmarkLoading} aria-label="Save">
+        <button
+          className={`action-btn bookmark ${isBookmarked ? "active" : ""} ${bookmarkPulse ? "pulse" : ""}`}
+          onClick={handleToggleBookmark}
+          aria-busy={bookmarkLoading}
+          aria-label="Save"
+        >
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M6 3h12v18l-6-4-6 4z" />
           </svg>
@@ -277,10 +350,14 @@ const Post = ({ postData, isBookmarked: isBookmarkedProp }) => {
       </div>
 
       {/* Caption */}
-      <div className="post-caption">
-        <span className="username">{currentPost.user.username}</span>
-        {displayCaption}
-      </div>
+      {showCaptionRow && (
+        <div className="post-caption">
+          <span className="username">{currentPost.user.username}</span>
+          {displayCaption}
+        </div>
+      )}
+
+      {editToast && <div className="post-toast">{editToast}</div>}
 
       {/* Edit */}
       {isEditing && (
@@ -310,7 +387,7 @@ const Post = ({ postData, isBookmarked: isBookmarkedProp }) => {
       </div>
 
       {commentsOpen && (
-        <div className="comments-section">
+        <div className="comments-section open">
           {commentLoading ? (
             <div className="comment-loading">Loading comments...</div>
           ) : (
@@ -370,10 +447,6 @@ const Post = ({ postData, isBookmarked: isBookmarkedProp }) => {
         </div>
       )}
 
-      {/* Time */}
-      <div className="post-time">
-        {currentPost.createdAt ? formatDate(currentPost.createdAt) : ""}
-      </div>
     </article>
   );
 };

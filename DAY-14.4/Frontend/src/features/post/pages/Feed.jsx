@@ -85,7 +85,10 @@ const Feed = () => {
       <main className="feed-container">
         {feed && feed.length === 0 && !loading && (
           <div className="empty-state">
-            No posts yet. Follow creators or upload your first moment to get started.
+            <p>No posts yet. Follow creators or upload your first moment to get started.</p>
+            <button className="empty-cta" onClick={() => navigate("/create")}>
+              Create your first post
+            </button>
           </div>
         )}
         {(feed || []).map((postData) => {
