@@ -56,9 +56,25 @@ const Feed = () => {
 
   if (loading && (!feed || feed.length === 0)) {
     return (
-      <main className="main-loading">
-        <h1>Loading feed...</h1>
-      </main>
+      <div className="feed-shell">
+        <aside className="feed-leftbar"></aside>
+        <main className="feed-container">
+          <div className="feed-skeleton">
+            {[1, 2, 3].map((item) => (
+              <div className="post-skeleton" key={item}>
+                <div className="skeleton-row">
+                  <div className="skeleton-avatar" />
+                  <div className="skeleton-line long" />
+                </div>
+                <div className="skeleton-media" />
+                <div className="skeleton-line long" />
+                <div className="skeleton-line" />
+              </div>
+            ))}
+          </div>
+        </main>
+        <aside className="feed-rightbar"></aside>
+      </div>
     );
   }
 
@@ -68,7 +84,9 @@ const Feed = () => {
       <aside className="feed-leftbar"></aside>
       <main className="feed-container">
         {feed && feed.length === 0 && !loading && (
-          <div className="empty-state">No posts yet.</div>
+          <div className="empty-state">
+            No posts yet. Follow creators or upload your first moment to get started.
+          </div>
         )}
         {(feed || []).map((postData) => {
           const postId = postData._id || postData.id;

@@ -13,12 +13,15 @@ const CompleteProfile = () => {
   const [fileError, setFileError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [localPreview, setLocalPreview] = useState("");
+  const [initialBio, setInitialBio] = useState("");
+  const [initialIsPrivate, setInitialIsPrivate] = useState(false);
   const fileInputRef = useRef(null);
 
   const navigate = useNavigate();
   const location = useLocation();
   const fallbackAvatar = user?.profileImage || "";
   const bioMax = 150;
+  const isEditing = Boolean(user?.hasProfile) || location.state?.from === "profile";
 
   useEffect(() => {
     return () => {
@@ -27,6 +30,36 @@ const CompleteProfile = () => {
       }
     };
   }, [localPreview]);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!user || !isEditing) return;
+      const userId = user?._id || user?.id;
+      if (!userId) return;
+
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/api/userprofile/${userId}`,
+          { withCredentials: true },
+        );
+        const profile = response.data.userProfile;
+        const nextBio = profile?.bio || "";
+        const nextPrivate = Boolean(profile?.isPrivate);
+
+        setBio(nextBio);
+        setIsPrivate(nextPrivate);
+        setInitialBio(nextBio);
+        setInitialIsPrivate(nextPrivate);
+      } catch (err) {
+        const nextBio = user?.bio || "";
+        setBio(nextBio);
+        setInitialBio(nextBio);
+        setInitialIsPrivate(Boolean(user?.isPrivate));
+      }
+    };
+
+    loadProfile();
+  }, [user, isEditing]);
 
   const handleFileChange = (file) => {
     setError("");
@@ -64,9 +97,12 @@ const CompleteProfile = () => {
   const initials = user?.username
     ? user.username.slice(0, 2).toUpperCase()
     : "IG";
-  const isDirty = Boolean(profilePic) || bio.trim().length > 0;
+  const isDirty =
+    Boolean(profilePic) ||
+    bio.trim() !== initialBio ||
+    isPrivate !== initialIsPrivate;
   const bioTooLong = bio.length > bioMax;
-  const canSubmit = isDirty && !submitting && !bioTooLong && !fileError;
+  const canSubmit = !submitting && !bioTooLong && !fileError && (isEditing || isDirty);
   const showSkip = !user?.hasProfile && location.state?.from !== "profile";
 
   const handleSkip = async () => {
@@ -107,7 +143,7 @@ const CompleteProfile = () => {
     e.preventDefault();
     setError("");
 
-    if (!profilePic && !bio.trim()) {
+    if (!isEditing && !profilePic && !bio.trim()) {
       setError("Add a photo or a short bio to continue.");
       return;
     }
@@ -120,7 +156,9 @@ const CompleteProfile = () => {
       setSubmitting(true);
 
       const formData = new FormData();
-      formData.append("profilepic", profilePic);
+      if (profilePic) {
+        formData.append("profilepic", profilePic);
+      }
       formData.append("bio", bio.trim());
       formData.append("isPrivate", isPrivate);
 

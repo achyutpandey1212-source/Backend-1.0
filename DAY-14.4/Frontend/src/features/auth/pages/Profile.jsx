@@ -184,7 +184,20 @@ const Profile = () => {
           <div className="profile-username-row">
             <h2>
               {username}
-              {isPrivate && <span className="private-lock" aria-label="Private account">🔒</span>}
+              {isPrivate && (
+                <span className="private-lock" aria-label="Private account">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M7 11h10v8H7zM9 11V8a3 3 0 1 1 6 0v3"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.7"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
+              )}
             </h2>
 
             {isOwnProfile ? (

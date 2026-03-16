@@ -109,6 +109,7 @@ async function getMeController(req, res) {
           "https://ik.imagekit.io/1gileoynr/default-profile-picture-avatar-user-icon-vector-46389216.avif?updatedAt=1771771461998",
         followerCount: userDetails?.followerCount || 0,
         followingCount: userDetails?.followingCount || 0,
+        isPrivate: userDetails?.isPrivate || false,
         hasProfile,
       },
     });

@@ -1,6 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
-import { getPendingRequests, acceptFollowRequest, rejectFollowRequest } from '../features/auth/services/profile.api';
-import './Notifications.scss';
+import { useState, useEffect, useRef } from "react";
+import {
+  getPendingRequests,
+  acceptFollowRequest,
+  rejectFollowRequest,
+} from "../features/auth/services/profile.api";
+import "./Notifications.scss";
 
 const Notifications = () => {
   const [requests, setRequests] = useState([]);
@@ -14,7 +18,7 @@ const Notifications = () => {
         const response = await getPendingRequests();
         setRequests(response.requests || []);
       } catch (error) {
-        console.error('Error fetching requests:', error);
+        console.error("Error fetching requests:", error);
         setRequests([]);
       }
     };
@@ -28,9 +32,9 @@ const Notifications = () => {
     setLoading(true);
     try {
       await acceptFollowRequest(followId);
-      setRequests(requests.filter(req => req._id !== followId));
+      setRequests(requests.filter((req) => req._id !== followId));
     } catch (error) {
-      console.error('Error accepting request:', error);
+      console.error("Error accepting request:", error);
     } finally {
       setLoading(false);
     }
@@ -40,9 +44,9 @@ const Notifications = () => {
     setLoading(true);
     try {
       await rejectFollowRequest(followId);
-      setRequests(requests.filter(req => req._id !== followId));
+      setRequests(requests.filter((req) => req._id !== followId));
     } catch (error) {
-      console.error('Error rejecting request:', error);
+      console.error("Error rejecting request:", error);
     } finally {
       setLoading(false);
     }
@@ -52,7 +56,6 @@ const Notifications = () => {
     setIsOpen(!isOpen);
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -60,18 +63,23 @@ const Notifications = () => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
     <div className="notifications-container" ref={dropdownRef}>
-      <button
-        className="notifications-btn"
-        onClick={toggleDropdown}
-        title="Notifications"
-      >
-        🔔
+      <button className="notifications-btn" onClick={toggleDropdown} title="Notifications">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M18 9a6 6 0 0 0-12 0c0 6-2 7-2 7h16s-2-1-2-7zM9.5 18a2.5 2.5 0 0 0 5 0"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
         {requests.length > 0 && (
           <span className="notification-count">{requests.length}</span>
         )}
@@ -85,9 +93,7 @@ const Notifications = () => {
 
           <div className="dropdown-content">
             {requests.length === 0 ? (
-              <div className="no-requests">
-                No pending requests
-              </div>
+              <div className="no-requests">No pending requests</div>
             ) : (
               requests.map((request) => (
                 <div key={request._id} className="request-item">

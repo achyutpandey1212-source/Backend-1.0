@@ -23,12 +23,32 @@ async function userProfileController(req, res) {
     uploadedUrl = file.url;
   }
 
-  const userProfile = await userProfileModel.create({
+  const isPrivateValue =
+    typeof req.body.isPrivate === "string"
+      ? req.body.isPrivate === "true"
+      : req.body.isPrivate;
+
+  const updateFields = {
     user: req.user.id,
-    ...(uploadedUrl ? { profileImg: uploadedUrl } : {}),
-    bio: req.body.bio,
-    isPrivate: req.body.isPrivate,
-  });
+  };
+
+  if (uploadedUrl) {
+    updateFields.profileImg = uploadedUrl;
+  }
+
+  if (typeof req.body.bio === "string") {
+    updateFields.bio = req.body.bio;
+  }
+
+  if (typeof isPrivateValue !== "undefined") {
+    updateFields.isPrivate = isPrivateValue;
+  }
+
+  const userProfile = await userProfileModel.findOneAndUpdate(
+    { user: req.user.id },
+    { $set: updateFields },
+    { new: true, upsert: true, setDefaultsOnInsert: true },
+  );
 
   return res.status(201).json({
     message: "user details saved successfully...",
