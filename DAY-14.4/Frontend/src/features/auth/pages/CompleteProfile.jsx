@@ -4,6 +4,8 @@ import { useAuth } from "../hooks/useAuth.jsx";
 import axios from "axios";
 import "../styles/profile.scss";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+
 const CompleteProfile = () => {
   const { setUser, user } = useAuth();
   const [bio, setBio] = useState("");
@@ -39,7 +41,7 @@ const CompleteProfile = () => {
 
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/userprofile/${userId}`,
+          `${API_BASE_URL}/api/userprofile/${userId}`,
           { withCredentials: true },
         );
         const profile = response.data.userProfile;
@@ -114,7 +116,7 @@ const CompleteProfile = () => {
 
       if (!user?.hasProfile) {
         const formData = new FormData();
-        await axios.post("http://localhost:3000/api/userprofile", formData, {
+        await axios.post(`${API_BASE_URL}/api/userprofile`, formData, {
           withCredentials: true,
           headers: {
             "Content-Type": "multipart/form-data",
@@ -122,7 +124,7 @@ const CompleteProfile = () => {
         });
 
         const meResponse = await axios.get(
-          "http://localhost:3000/api/auth/get-me",
+          `${API_BASE_URL}/api/auth/get-me`,
           { withCredentials: true },
         );
         setUser(meResponse.data.user);
@@ -162,7 +164,7 @@ const CompleteProfile = () => {
       formData.append("bio", bio.trim());
       formData.append("isPrivate", isPrivate);
 
-      await axios.post("http://localhost:3000/api/userprofile", formData, {
+      await axios.post(`${API_BASE_URL}/api/userprofile`, formData, {
         withCredentials: true,
         headers: {
           "Content-Type": "multipart/form-data",
@@ -171,7 +173,7 @@ const CompleteProfile = () => {
 
       // Refresh user data to include hasProfile = true
       const meResponse = await axios.get(
-        "http://localhost:3000/api/auth/get-me",
+        `${API_BASE_URL}/api/auth/get-me`,
         { withCredentials: true },
       );
 

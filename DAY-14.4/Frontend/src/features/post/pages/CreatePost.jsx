@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:3000/api/posts";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 
 const CreatePost = () => {
   const [title, setTitle] = useState("");
@@ -59,7 +59,7 @@ const CreatePost = () => {
       formData.append("caption", caption.trim());
       formData.append("image", image);
 
-      await axios.post(`${API_BASE_URL}/`, formData, {
+      await axios.post(`${API_BASE_URL}/api/posts/`, formData, {
         withCredentials: true,
         headers: {
           "Content-Type": "multipart/form-data",

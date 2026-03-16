@@ -13,9 +13,13 @@ const path = require("path")
 
 const app = express();
 
+const allowedOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(",").map((origin) => origin.trim())
+    : ["http://localhost:5173", "http://localhost:5174"];
+
 app.use(cors({
     credentials: true,
-    origin: ["http://localhost:5173", "http://localhost:5174"]
+    origin: allowedOrigins
 }))
 app.use(express.json());
 app.use(cookieParser());
