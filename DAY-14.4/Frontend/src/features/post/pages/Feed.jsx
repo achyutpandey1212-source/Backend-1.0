@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/feed.scss";
 import Post from "../components/Post";
 import { usePost } from "../hooks/usePost";
@@ -8,10 +8,12 @@ import { useAuth } from "../../auth/hooks/useAuth";
 const Feed = () => {
   const { feed, handleGetFeed, loading, bookmarks } = usePost();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const userId = user?._id || user?.id;
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [toast, setToast] = useState("");
   const loaderRef = useRef(null);
 
   useEffect(() => {
@@ -21,6 +23,14 @@ const Feed = () => {
     };
     loadInitial();
   }, []);
+
+  useEffect(() => {
+    if (location.state?.toast) {
+      setToast(location.state.toast);
+      const timer = setTimeout(() => setToast(""), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     if (!loaderRef.current) return;
@@ -54,6 +64,7 @@ const Feed = () => {
 
   return (
     <div className="feed-shell">
+      {toast && <div className="toast">{toast}</div>}
       <aside className="feed-leftbar"></aside>
       <main className="feed-container">
         {feed && feed.length === 0 && !loading && (
