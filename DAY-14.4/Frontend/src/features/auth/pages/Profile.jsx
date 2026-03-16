@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.jsx";
 import {
@@ -27,6 +27,10 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("posts");
   const [savedPosts, setSavedPosts] = useState([]);
   const [savedLoading, setSavedLoading] = useState(false);
+  const tabsRef = useRef(null);
+  const postsTabRef = useRef(null);
+  const savedTabRef = useRef(null);
+  const indicatorRef = useRef(null);
 
   const isOwnProfile =
     !userId || userId === user?._id || userId === user?.id;
@@ -85,6 +89,40 @@ const Profile = () => {
     fetchSaved();
   }, [activeTab, isOwnProfile]);
 
+  const updateIndicator = () => {
+    if (!tabsRef.current || !indicatorRef.current) return;
+    const activeEl = activeTab === "posts" ? postsTabRef.current : savedTabRef.current;
+    if (!activeEl) return;
+    const tabsRect = tabsRef.current.getBoundingClientRect();
+    const activeRect = activeEl.getBoundingClientRect();
+    const left = activeRect.left - tabsRect.left;
+    indicatorRef.current.style.width = `${activeRect.width}px`;
+    indicatorRef.current.style.transform = `translateX(${left}px)`;
+  };
+
+  useEffect(() => {
+    if (!tabsRef.current || !indicatorRef.current) return;
+    const raf = requestAnimationFrame(updateIndicator);
+    return () => cancelAnimationFrame(raf);
+  }, [activeTab, isOwnProfile, posts.length, savedPosts.length, loading, savedLoading]);
+
+  useEffect(() => {
+    if (document?.fonts?.ready) {
+      document.fonts.ready.then(() => {
+        requestAnimationFrame(updateIndicator);
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      updateIndicator();
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [activeTab]);
+
   const handleFollowToggle = async () => {
     if (!user || !userId || followLoading) return;
 
@@ -128,21 +166,31 @@ const Profile = () => {
     return null;
   }
 
+  const username = profile.user?.username || profile.username;
+  const isPrivate = profile.isPrivate;
+  const joinedAt = profile.createdAt ? new Date(profile.createdAt) : null;
+  const joinedText = joinedAt
+    ? `Joined ${joinedAt.toLocaleString("en-US", { month: "long", year: "numeric" })}`
+    : "";
+
   return (
-    <main className="profile-page">
+    <main className="profile-page with-header">
       <section className="profile-header">
         <div className="profile-avatar">
-          <img src={profile.profileImg || profile.profileImage} alt={profile.user?.username || profile.username} />
+          <img src={profile.profileImg || profile.profileImage} alt={username} />
         </div>
 
         <div className="profile-info">
           <div className="profile-username-row">
-            <h2>{profile.user?.username || profile.username}</h2>
+            <h2>
+              {username}
+              {isPrivate && <span className="private-lock" aria-label="Private account">🔒</span>}
+            </h2>
 
             {isOwnProfile ? (
               <button
                 className="profile-btn secondary"
-                onClick={() => navigate("/complete-profile")}
+                onClick={() => navigate("/complete-profile", { state: { from: "profile" } })}
               >
                 Edit Profile
               </button>
@@ -159,41 +207,52 @@ const Profile = () => {
 
           <ul className="profile-stats">
             <li>
-              <span className="count">{posts.length}</span> posts
+              <span className="count">{posts.length}</span>
+              <span className="label">posts</span>
             </li>
             <li>
               <span className="count">
                 {profile.followerCount ?? profile.followers ?? 0}
-              </span>{" "}
-              followers
+              </span>
+              <span className="label">followers</span>
             </li>
             <li>
               <span className="count">
                 {profile.followingCount ?? profile.following ?? 0}
-              </span>{" "}
-              following
+              </span>
+              <span className="label">following</span>
             </li>
           </ul>
 
           {profile.bio && <p className="profile-bio">{profile.bio}</p>}
+          {(profile.location || profile.website || joinedText) && (
+            <p className="profile-meta">
+              {profile.location && <span>{profile.location}</span>}
+              {profile.website && <span>{profile.website}</span>}
+              {joinedText && <span>{joinedText}</span>}
+            </p>
+          )}
         </div>
       </section>
 
       <section className="profile-posts">
         {isOwnProfile && (
-          <div className="profile-tabs">
+          <div className="profile-tabs" ref={tabsRef}>
             <button
               className={activeTab === "posts" ? "tab-btn active" : "tab-btn"}
               onClick={() => setActiveTab("posts")}
+              ref={postsTabRef}
             >
               Posts
             </button>
             <button
               className={activeTab === "saved" ? "tab-btn active" : "tab-btn"}
               onClick={() => setActiveTab("saved")}
+              ref={savedTabRef}
             >
               Saved
             </button>
+            <span ref={indicatorRef} className="tab-indicator" />
           </div>
         )}
 
@@ -201,7 +260,9 @@ const Profile = () => {
           <>
             {savedLoading && <p className="empty-state subtle">Loading saved posts...</p>}
             {savedPosts.length === 0 && !savedLoading ? (
-              <p className="empty-state">No saved posts yet.</p>
+              <div className="empty-state-block">
+                <p className="empty-state">No saved posts yet.</p>
+              </div>
             ) : (
               <div className="posts-grid">
                 {savedPosts.map((post) => (
@@ -213,11 +274,21 @@ const Profile = () => {
             )}
           </>
         ) : posts.length === 0 ? (
-          <p className="empty-state">
-            {isOwnProfile
-              ? "You haven't posted anything yet."
-              : "This user hasn't posted anything yet."}
-          </p>
+          <div className="empty-state-block">
+            <p className="empty-state">
+              {isOwnProfile
+                ? "You haven't posted anything yet."
+                : "This user hasn't posted anything yet."}
+            </p>
+            {isOwnProfile && (
+              <>
+                <p className="empty-state-sub">Share your first photo by tapping Create.</p>
+                <button className="ghost-btn" onClick={() => navigate("/create")}>
+                  Create Post
+                </button>
+              </>
+            )}
+          </div>
         ) : (
           <div className="posts-grid">
             {posts.map((post) => (

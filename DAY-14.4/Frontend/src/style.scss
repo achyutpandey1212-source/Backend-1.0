@@ -4,12 +4,16 @@
   box-sizing: border-box;
 }
 
+:root {
+  --app-header-height: 54px;
+}
+
 html,
 body,
 #root {
-  height: 100%;
+  min-height: 100%;
   width: 100%;
-  background-color: #fafafa;
+  background-color: #0b0f14;
   color: #262626;
   font-family:
     system-ui,
@@ -23,6 +27,7 @@ body,
     "Open Sans",
     "Helvetica Neue",
     sans-serif;
+  scroll-padding-top: var(--app-header-height);
 }
 
 @import "./features/post/styles/create-post.scss";

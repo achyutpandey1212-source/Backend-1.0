@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.jsx";
 import axios from "axios";
 import "../styles/profile.scss";
@@ -16,6 +16,7 @@ const CompleteProfile = () => {
   const fileInputRef = useRef(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const fallbackAvatar = user?.profileImage || "";
   const bioMax = 150;
 
@@ -66,7 +67,41 @@ const CompleteProfile = () => {
   const isDirty = Boolean(profilePic) || bio.trim().length > 0;
   const bioTooLong = bio.length > bioMax;
   const canSubmit = isDirty && !submitting && !bioTooLong && !fileError;
-  const fileName = profilePic?.name || "No file selected";
+  const showSkip = !user?.hasProfile && location.state?.from !== "profile";
+
+  const handleSkip = async () => {
+    if (submitting) return;
+    setError("");
+
+    try {
+      setSubmitting(true);
+
+      if (!user?.hasProfile) {
+        const formData = new FormData();
+        await axios.post("http://localhost:3000/api/userprofile", formData, {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        const meResponse = await axios.get(
+          "http://localhost:3000/api/auth/get-me",
+          { withCredentials: true },
+        );
+        setUser(meResponse.data.user);
+      }
+
+      navigate("/feed");
+    } catch (err) {
+      const message =
+        err?.response?.data?.message ||
+        "Failed to skip profile setup. Please try again.";
+      setError(message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -118,6 +153,16 @@ const CompleteProfile = () => {
     <main className="profile-page complete-profile">
       <section className="profile-header">
         <div className="profile-avatar">
+          <input
+            ref={fileInputRef}
+            id="profilepic"
+            type="file"
+            accept="image/*"
+            className="file-input-hidden"
+            onChange={(e) =>
+              handleFileChange(e.target.files?.[0] || null)
+            }
+          />
           <div className="profile-avatar-placeholder has-image">
             {displayAvatar ? (
               <img src={displayAvatar} alt="Profile preview" />
@@ -134,6 +179,7 @@ const CompleteProfile = () => {
             </label>
           </div>
           <p className="avatar-hint">JPG/PNG - up to 5MB - 4:5 or 1:1 works best</p>
+          {fileError && <p className="error-text">{fileError}</p>}
         </div>
 
         <div className="profile-info">
@@ -147,37 +193,6 @@ const CompleteProfile = () => {
           </div>
 
           <form className="complete-profile-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="profilepic">Profile Picture</label>
-              <input
-                ref={fileInputRef}
-                id="profilepic"
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  handleFileChange(e.target.files?.[0] || null)
-                }
-              />
-              <div className={`file-row ${fileError ? "file-error" : ""}`}>
-                <span className="file-icon">IMG</span>
-                <span className="file-name" title={fileName}>
-                  {fileName}
-                </span>
-                <label className="file-button mini" htmlFor="profilepic">
-                  Change
-                </label>
-              </div>
-              {profilePic && (
-                <div className="file-thumb">
-                  <img src={localPreview} alt="Selected profile" />
-                </div>
-              )}
-              <p className="helper-text">
-                JPG/PNG - up to 5MB - 4:5 or 1:1 works best
-              </p>
-              {fileError && <p className="error-text">{fileError}</p>}
-            </div>
-
             <div className="form-group">
               <label htmlFor="bio">Bio</label>
               <textarea
@@ -220,13 +235,16 @@ const CompleteProfile = () => {
             >
               {submitting ? "Saving..." : "Save Profile"}
             </button>
-            <button
-              type="button"
-              className="link-button skip-button"
-              onClick={() => navigate("/")}
-            >
-              Skip for now
-            </button>
+            {showSkip && (
+              <button
+                type="button"
+                className="link-button skip-button"
+                onClick={handleSkip}
+                disabled={submitting}
+              >
+                Skip for now
+              </button>
+            )}
           </form>
         </div>
       </section>

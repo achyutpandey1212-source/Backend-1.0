@@ -32,7 +32,7 @@ const Register = () => {
   }
 
   return (
-    <main>
+    <main className="auth-page">
       <div className="left-block">
         <img className="top" src="./insta-logo.png" alt="" />
         <h1>

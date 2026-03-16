@@ -1,15 +1,21 @@
 .profile-page {
-  min-height: 100vh;
+  min-height: 100dvh;
   padding: 40px 16px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   background: #0b0f14;
   color: #e6e6e6;
 }
 
+.profile-page.with-header {
+  padding-top: calc(var(--app-header-height) + 24px);
+  padding-bottom: 56px;
+}
+
 .profile-page.complete-profile {
-  justify-content: center;
+  justify-content: flex-start;
+  padding-top: 72px;
 }
 
 .profile-header {
@@ -17,20 +23,23 @@
   gap: 40px;
   max-width: 900px;
   width: 100%;
-  margin-bottom: 40px;
+  margin: 12px auto 20px;
+  align-items: flex-start;
 }
 
 .profile-page.complete-profile .profile-header {
   max-width: 760px;
+  gap: 32px;
 }
 
 .profile-avatar img {
-  width: 160px;
-  height: 160px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
   object-fit: cover;
   object-position: top;
   border: 3px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.03);
 }
 
 .profile-info {
@@ -42,14 +51,22 @@
 
 .profile-username-row {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 16px;
 
   h2 {
     font-size: 24px;
     font-weight: 600;
     color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
   }
+}
+
+.private-lock {
+  font-size: 14px;
+  opacity: 0.7;
 }
 
 .profile-btn {
@@ -68,7 +85,14 @@
   &.secondary {
     background: transparent;
     color: #e6e6e6;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.04);
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+
+  &.secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.5);
   }
 }
 
@@ -80,8 +104,14 @@
   color: #c8ccd2;
 
   .count {
-    font-weight: 600;
-    margin-right: 4px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-right: 6px;
+  }
+
+  .label {
+    color: #9fa4aa;
+    font-weight: 400;
   }
 }
 
@@ -89,6 +119,23 @@
   font-size: 14px;
   max-width: 480px;
   color: #c8ccd2;
+  line-height: 1.6;
+  margin: 6px 0 4px;
+}
+
+.profile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  color: #9fa4aa;
+  max-width: 480px;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
 }
 
 .profile-subtitle {
@@ -146,6 +193,7 @@
   }
 
   .file-row {
+    width: 100%;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -173,20 +221,22 @@
 
   .file-name {
     flex: 1;
-    font-size: 13px;
-    color: #cbd2dc;
+    min-width: 0;
+    font-size: 12px;
+    color: #8d95a1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .file-thumb {
-    margin-top: 10px;
+    margin-top: 6px;
     width: 72px;
     height: 72px;
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
   }
 
   .file-thumb img {
@@ -195,10 +245,23 @@
     object-fit: cover;
   }
 
+  .thumb-label {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #f0f3f8;
+    background: rgba(11, 15, 20, 0.7);
+    padding: 2px 6px;
+    border-radius: 999px;
+  }
+
   .helper-text {
-    margin: 6px 0 0;
-    font-size: 12px;
-    color: #7f8792;
+    margin: 4px 0 0;
+    font-size: 11px;
+    color: #6f7883;
   }
 
   input[type="file"] {
@@ -301,6 +364,16 @@
   }
 }
 
+.profile-page.complete-profile .profile-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  width: 200px;
+  margin: 0 auto;
+}
+
 .avatar-initials {
   font-size: 32px;
   font-weight: 600;
@@ -309,10 +382,10 @@
 }
 
 .avatar-actions {
-  margin-top: 12px;
   display: flex;
-  gap: 10px;
   align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .file-button {
@@ -326,12 +399,19 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transform: translateX(21px);
+  margin: 0 auto;
 }
 
 .file-button.mini {
   padding: 6px 12px;
   font-size: 12px;
+  flex-shrink: 0;
+  margin-left: auto;
+  // transform: translateX(-21PX);
+}
+
+.file-input-hidden {
+  display: none;
 }
 
 .file-button.error {
@@ -348,10 +428,10 @@
 }
 
 .avatar-hint {
-  margin-top: 6px;
   font-size: 12px;
   color: #7f8792;
-  transform: translateX(21px);
+  width: 100%;
+  text-align: center;
 }
 
 .complete-profile .profile-btn.primary {
@@ -394,18 +474,23 @@
 .profile-posts {
   max-width: 900px;
   width: 100%;
+  margin: 0 auto;
+  padding-bottom: 40px;
+  margin-top: 6px;
 }
 
 .profile-tabs {
   display: flex;
   gap: 12px;
   margin-bottom: 16px;
+  position: relative;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .tab-btn {
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   background: transparent;
-  color: #262626;
+  color: #b9c2ce;
   padding: 6px 14px;
   border-radius: 999px;
   font-size: 0.85rem;
@@ -414,8 +499,19 @@
 }
 
 .tab-btn.active {
-  background: #262626;
+  background: #1c222b;
   color: #ffffff;
+  font-weight: 600;
+}
+
+.tab-indicator {
+  position: absolute;
+  bottom: -1px;
+  height: 2px;
+  background: #ffffff;
+  border-radius: 999px;
+  transition: transform 0.25s ease;
+  left: 0;
 }
 
 .posts-grid {
@@ -443,6 +539,37 @@
 .empty-state {
   text-align: center;
   color: #9fa4aa;
+}
+
+.empty-state-block {
+  min-height: 40vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.empty-state-sub {
+  font-size: 13px;
+  color: #7f8792;
+}
+
+.ghost-btn {
+  margin-top: 4px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e6e6e6;
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.ghost-btn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .empty-state.subtle {

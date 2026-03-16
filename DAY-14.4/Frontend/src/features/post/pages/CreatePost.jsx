@@ -143,11 +143,12 @@ const CreatePost = () => {
                 {fileName}
               </span>
               <label className="file-button mini" htmlFor="image">
-                Change
+                {image ? "Change" : "Add"}
               </label>
             </div>
             {localPreview && (
               <div className="file-thumb">
+                <span className="thumb-label">Preview</span>
                 <img src={localPreview} alt="Selected post" />
               </div>
             )}
