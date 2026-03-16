@@ -62,14 +62,8 @@ async function getFeedController(req, res) {
       { path: "userProfile", select: "profileImg" },
     ]);
 
-  if (posts.length === 0) {
-    return res.status(404).json({
-      message: "oops... no posts yet :(",
-    });
-  }
-
   return res.status(200).json({
-    message: "posts fetched...",
+    message: posts.length === 0 ? "oops... no posts yet :(" : "posts fetched...",
     posts,
   });
 }
@@ -107,14 +101,11 @@ async function getUsersPostsController(req, res) {
       { path: "userProfile", select: "profileImg" },
     ]);
 
-  if (posts.length === 0) {
-    return res.status(404).json({
-      message: "Oops... u haven't posted anything yet",
-    });
-  }
-
   return res.status(200).json({
-    message: "user's all posts fetched...",
+    message:
+      posts.length === 0
+        ? "Oops... u haven't posted anything yet"
+        : "user's all posts fetched...",
     totalCount: posts.length,
     posts,
   });

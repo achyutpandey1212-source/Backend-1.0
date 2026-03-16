@@ -18,6 +18,11 @@ export const usePost = () => {
       setFeed((prev) => (append ? [...(prev || []), ...(feedData.posts || [])] : feedData.posts));
       setBookmarks(bookmarkData.posts || []);
       return feedData.posts || [];
+    } catch (err) {
+      if (!append) {
+        setFeed([]);
+      }
+      return [];
     } finally {
       setLoading(false);
     }

@@ -54,15 +54,12 @@ async function loginController(req, res) {
   });
 
   if (!user) {
-    return (
-      res.status(401),
-      json({
-        message: "User is not registered... access denied",
-      })
-    );
+    return res.status(401).json({
+      message: "User is not registered... access denied",
+    });
   }
 
-  const isPassword = bcrypt.compare(password, user.password);
+  const isPassword = await bcrypt.compare(password, user.password);
 
   if (!isPassword) {
     return res.status(401).json({

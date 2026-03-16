@@ -7,22 +7,27 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const { handleRegister } = useAuth();
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
 
-    const registeredUser = await handleRegister(username, email, password);
+    const result = await handleRegister(username, email, password);
 
-    if (!registeredUser) {
+    if (result?.user) {
+      setError("");
+      if (!result.user.hasProfile) {
+        navigate("/complete-profile");
+      } else {
+        navigate("/feed");
+      }
       return;
     }
 
-    if (!registeredUser.hasProfile) {
-      navigate("/complete-profile");
-    } else {
-      navigate("/feed");
+    if (result?.error) {
+      setError(result.error);
     }
   }
 
@@ -75,6 +80,7 @@ const Register = () => {
             <label htmlFor="password">Password</label>
           </div>
           <button>Register</button>
+          {error && <p className="form-error">{error}</p>}
 
           <div className="link">
             <p>Already registered?</p>

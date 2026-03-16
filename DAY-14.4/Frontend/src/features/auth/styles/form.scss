@@ -142,6 +142,16 @@ main {
         }
       }
 
+      .form-error {
+        margin: 0;
+        padding: 6px 10px;
+        border-radius: 0.5rem;
+        background: rgba(255, 77, 79, 0.12);
+        color: #ffb4b4;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
       .link {
         margin-top: 24px;
         text-align: center;

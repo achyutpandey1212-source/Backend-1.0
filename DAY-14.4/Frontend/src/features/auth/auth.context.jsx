@@ -31,10 +31,11 @@ export function AuthProvider({ children }) {
       await login(username, password);
       const me = await getMe();
       setUser(me.user);
-      return me.user;
+      return { user: me.user, error: null };
     } catch (err) {
-      console.log(err);
-      return null;
+      const message =
+        err?.response?.data?.message || "Login failed. Please try again.";
+      return { user: null, error: message };
     } finally {
       setLoading(false);
     }
@@ -46,10 +47,11 @@ export function AuthProvider({ children }) {
       await register(username, email, password);
       const me = await getMe();
       setUser(me.user);
-      return me.user;
+      return { user: me.user, error: null };
     } catch (err) {
-      console.log(err);
-      return null;
+      const message =
+        err?.response?.data?.message || "Registration failed. Please try again.";
+      return { user: null, error: message };
     } finally {
       setLoading(false);
     }

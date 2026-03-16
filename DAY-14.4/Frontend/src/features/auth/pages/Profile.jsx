@@ -213,7 +213,11 @@ const Profile = () => {
             )}
           </>
         ) : posts.length === 0 ? (
-          <p className="empty-state">No posts yet.</p>
+          <p className="empty-state">
+            {isOwnProfile
+              ? "You haven't posted anything yet."
+              : "This user hasn't posted anything yet."}
+          </p>
         ) : (
           <div className="posts-grid">
             {posts.map((post) => (
